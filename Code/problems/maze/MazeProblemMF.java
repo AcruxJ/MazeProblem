@@ -133,60 +133,78 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 			return new StateActionTransModel(reachable, probs);
 		}
 		
-		
-		/* Otherwise it is a simple movement.*/
-		
-		// Considers first it must count all reachable positions.
-		int numReachablePos = 0;
-		if ((fromY>0) && (maze.cells[fromX][fromY-1]!=Maze.WALL)) numReachablePos++;	           //UP
-		if ((fromY<maze.size-1) && (maze.cells[fromX][fromY+1]!=Maze.WALL)) numReachablePos++;  //DOWN	
-		if ((fromX>0) && (maze.cells[fromX-1][fromY]!=Maze.WALL)) numReachablePos++;            //LEFT
-		if ((fromX<maze.size-1) && (maze.cells[fromX+1][fromY]!=Maze.WALL)) numReachablePos++;  //RIGHT
-		
+	
 		// Creates the transition model.
-		reachable = new State[numReachablePos];
-		probs = new double[numReachablePos];
+		reachable = new State[4];
+		probs = new double[4];
 		
 		// Probability of error 0.1 times each position.
 		double probError = 0.1;
-		double probSuccess = 1.0 - probError*(numReachablePos-1);
+		double probSuccess = 1.0 - probError*(4-1);
 		
 		int ind=0;
-		if ((fromY>0) && (maze.cells[fromX][fromY-1]!=Maze.WALL)) { // UP
-			reachable[ind] = new MazeState(fromX,fromY-1);
-			if (action==MazeAction.UP)
-				probs[ind]=probSuccess;
-			else
-				probs[ind]=probError;
-			ind++;
-		}
+		//
+		// Cell X,Y-1
+		//
+		// Probability
+		if (action==MazeAction.UP)
+			probs[ind]=probSuccess;
+		else
+			probs[ind]=probError;
+		// Reached state
+		if ((fromY>0) && (maze.cells[fromX][fromY-1]!=Maze.WALL))  
+			reachable[ind] = new MazeState(fromX,fromY-1); // Can move
+		else
+			reachable[ind] = new MazeState(fromX,fromY); // Can't move
+	
 		
-		if ((fromY<maze.size-1) && (maze.cells[fromX][fromY+1]!=Maze.WALL)) { // DOWN
-			reachable[ind] = new MazeState(fromX,fromY+1);
-			if (action==MazeAction.DOWN)
-				probs[ind]=probSuccess;
-			else
-				probs[ind]=probError;
-			ind++;
-		}
+		ind++;
+		//
+		// Cell X,Y+1
+		//
+		// Probability
+		if (action==MazeAction.DOWN)
+			probs[ind]=probSuccess;
+		else
+			probs[ind]=probError;	
+		// Reached state
+		if ((fromY<maze.size-1) && (maze.cells[fromX][fromY+1]!=Maze.WALL))  
+			reachable[ind] = new MazeState(fromX,fromY+1); // Can move
+		else
+			reachable[ind] = new MazeState(fromX,fromY); // Can't move
+	
 		
-		if ((fromX>0) && (maze.cells[fromX-1][fromY]!=Maze.WALL)) { // LEFT
-			reachable[ind] = new MazeState(fromX-1,fromY);
-			if (action==MazeAction.LEFT)
-				probs[ind]=probSuccess;
-			else
-				probs[ind]=probError;
-			ind++;
-		}
+		ind++;
+		//
+		// Cell X-1,Y
+		//
+		// Probability
+		if (action==MazeAction.LEFT)
+			probs[ind]=probSuccess;
+		else
+			probs[ind]=probError;
+		// Reached state
+		if ((fromX>0) && (maze.cells[fromX-1][fromY]!=Maze.WALL))  
+			reachable[ind] = new MazeState(fromX-1,fromY); // Can move
+		else
+			reachable[ind] = new MazeState(fromX,fromY); // Can't move
+
 		
-		if ((fromX<maze.size-1) && (maze.cells[fromX+1][fromY]!=Maze.WALL)) { // RIGHT
-			reachable[ind] = new MazeState(fromX+1,fromY);
-			if (action==MazeAction.RIGHT)
-				probs[ind]=probSuccess;
-			else
-				probs[ind]=probError;
-			ind++;
-		}
+		ind++;
+		//
+		// Cell X,Y+1
+		//
+		// Probability
+		if (action==MazeAction.RIGHT)
+			probs[ind]=probSuccess;
+		else
+			probs[ind]=probError;
+		// Reached state
+		if ((fromX<maze.size-1) && (maze.cells[fromX+1][fromY]!=Maze.WALL))  
+			reachable[ind] = new MazeState(fromX+1,fromY); // Can move
+		else
+			reachable[ind] = new MazeState(fromX,fromY); // Can't move
+				
 		
 		// Returns 
 		return new StateActionTransModel(reachable, probs);

@@ -69,15 +69,24 @@ public class ProblemVisualization{
 	 */
 	public void visualizePolicy(Policy policy){
 		// Initial state.
-		setState(problem.getRandomState());
+		Double powGamma = 1.0;
+		
+		State currentState = problem.getRandomState();
+		setState(currentState);
+		Double utility = problem.getReward(currentState); 
+		
 		// Iterates until the current state is final.
 		while (!problem.isFinal(view.currentState)){
 			// Calculates the next state
 			Action action =  policy.getAction(view.currentState);
 			State toState = problem.applyAction(view.currentState, action);
+			// Updates the utility
+			powGamma = powGamma * problem.gamma;
+			utility = utility + powGamma*(problem.getReward(toState) + problem.getTransitionReward(currentState, action, toState));
 			// Moves
 			takeAction(action, toState);
 		}
+		System.out.println("\nUtility for the policy visualized: "+utility);
 	}
 	
 	/** Closes the window */

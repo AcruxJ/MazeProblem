@@ -70,6 +70,7 @@ public class Solver {
 		
 		String[] problemParams = Arrays.copyOfRange(args, 3, sep);
 		LearningProblem problem = LearningProblem.generateProblem(problemName, problemParams);
+		problem.setGamma(gamma);
 
 		// Generates the algorithm. 
 		String algorithmName = args[sep+1];
