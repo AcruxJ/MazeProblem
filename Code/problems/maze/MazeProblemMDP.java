@@ -55,22 +55,47 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 	/** Whether the state corresponds to a final state (CAT or CHEESE).*/
 	@Override
 	public boolean isFinal(State state) {
-		//
-		// COMPLETAR
-		// 
-		return false; // Quitar
+		MazeState mState = (MazeState)state;
+		if(mState.position.equals(maze.posCheese)){
+			return true;
+		}
+		for (Position posCat : maze.posCats) {
+			if(mState.position.equals(posCat)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Returns the set of actions that can be done at each step. */
 	@Override
 	public ArrayList<Action> getPossibleActions(State state) {
-		MazeState mazeState = (MazeState) state;
+		MazeState mState = (MazeState) state;
 		ArrayList<Action> possibleActions = new ArrayList<Action>();
-		//
-		// COMPLETAR
-		// 
-		
-		// Returns the actions.
+		Position pos = mState.position;
+		if(pos.x+1<maze.size) {
+			if(maze.cells[pos.x+1][pos.y]!=maze.WALL) {
+				possibleActions.add(MazeAction.RIGHT);
+			}
+		}
+		if(pos.x-1>=0) {
+			if(maze.cells[pos.x-1][pos.y]!=maze.WALL) {
+				possibleActions.add(MazeAction.LEFT);
+			}
+		}
+		if(pos.y+1<maze.size) {
+			if(maze.cells[pos.x][pos.y+1]!=maze.WALL) {
+				possibleActions.add(MazeAction.DOWN);
+			}
+		}
+		if(pos.x-1>=0) {
+			if(maze.cells[pos.x+1][pos.y]!=maze.WALL) {
+				possibleActions.add(MazeAction.UP);
+			}
+		}
+		if(maze.cells[pos.x][pos.y]==maze.HOLE) {
+			possibleActions.add(MazeAction.DIVE);
+		}
 		return possibleActions;
 	}	
 	
