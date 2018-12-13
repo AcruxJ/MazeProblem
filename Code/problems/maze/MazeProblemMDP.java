@@ -74,26 +74,26 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 		ArrayList<Action> possibleActions = new ArrayList<Action>();
 		Position pos = mState.position;
 		if(pos.x+1<maze.size) {
-			if(maze.cells[pos.x+1][pos.y]!=maze.WALL) {
+			if(maze.cells[pos.x+1][pos.y]!=Maze.WALL) {
 				possibleActions.add(MazeAction.RIGHT);
 			}
 		}
 		if(pos.x-1>=0) {
-			if(maze.cells[pos.x-1][pos.y]!=maze.WALL) {
+			if(maze.cells[pos.x-1][pos.y]!=Maze.WALL) {
 				possibleActions.add(MazeAction.LEFT);
 			}
 		}
 		if(pos.y+1<maze.size) {
-			if(maze.cells[pos.x][pos.y+1]!=maze.WALL) {
+			if(maze.cells[pos.x][pos.y+1]!=Maze.WALL) {
 				possibleActions.add(MazeAction.DOWN);
 			}
 		}
 		if(pos.x-1>=0) {
-			if(maze.cells[pos.x+1][pos.y]!=maze.WALL) {
+			if(maze.cells[pos.x+1][pos.y]!=Maze.WALL) {
 				possibleActions.add(MazeAction.UP);
 			}
 		}
-		if(maze.cells[pos.x][pos.y]==maze.HOLE) {
+		if(maze.cells[pos.x][pos.y]==Maze.HOLE) {
 			possibleActions.add(MazeAction.DIVE);
 		}
 		return possibleActions;
@@ -103,28 +103,29 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 	@Override
 	public double getReward(State state){
 		double reward=0;
-		
-		//
-		// COMPLETAR
-		// 
-		
-		// Otherwise returns 0
-		return 0;
+		MazeState mState = (MazeState) state;
+		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CAT)
+			reward=-100;
+		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CHEESE)
+			reward=100;
+		return reward;
 	}	
 	
 	/**  In this case, the transition reward penalizes distance. */	
 	@Override
 	public double getTransitionReward(State fromState, Action action, State toState) {
-		
 		double reward = 0;
-		
-		//
-		// COMPLETAR
-		// 
-		
-		// Returns the reward
-		return reward;
+		reward = euclideanDistance(((MazeState)fromState).position, ((MazeState)toState).position);
+		if((MazeAction)action==MazeAction.DIVE)
+			reward=reward*2;
+		if(maze.cells[((MazeState)fromState).position.x][((MazeState)fromState).position.y]==Maze.WATER)
+			reward=reward/2;
+		return -reward;
 	}	
+	
+	public double euclideanDistance(Position start, Position finish) {
+		return Math.sqrt(Math.pow(start.x-finish.x, 2) + Math.pow(start.y-finish.y, 2));
+	}
 	
 	// From MDPLearningProblem
 	
@@ -132,18 +133,16 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 	@Override
 	public Collection<State> getAllStates() {
 		ArrayList<State> allStates = new ArrayList<State>();
-		//
-		// COMPLETAR
-		// 
+		for (int x=0;x<maze.size;x++)
+			for(int y=0;y<maze.size;y++) 
+				if (maze.cells[x][y]!=Maze.WALL)
+					allStates.add(new MazeState(x, y));
 		return allStates;
 	}		
 	
 	/** Provides access to the action transition model for a pair state/action */ 
 	public StateActionTransModel getTransitionModel(State state, Action action){
-		//
-		// COMPLETAR
-		// 
-		return null; 
+		return mazeTransitionModel(state, action); 
 	}
 	
 	/** Generates the transition model for a certain state in this particular problem. 
