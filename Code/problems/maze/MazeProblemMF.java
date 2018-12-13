@@ -72,12 +72,12 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 	public ArrayList<Action> getPossibleActions(State state) {
 		MazeState mState = (MazeState) state;
 		ArrayList<Action> possibleActions = new ArrayList<Action>();
-		/*Position pos = mState.position;
-		if(maze.cells[pos.x+1][pos.y]!=maze.WALL) {
-			possibleActions.add(MazeAction.RIGHT);
-		}*/
-		
-		// Returns the actions.
+		possibleActions.add(MazeAction.UP);
+		possibleActions.add(MazeAction.DOWN);
+		possibleActions.add(MazeAction.LEFT);
+		possibleActions.add(MazeAction.RIGHT);
+		if(maze.cells[mState.position.x][mState.position.y]==Maze.HOLE)
+			possibleActions.add(MazeAction.DIVE);
 		return possibleActions;
 	}	
 	
@@ -85,28 +85,29 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 	@Override
 	public double getReward(State state){
 		double reward=0;
-		
-		//
-		// COMPLETAR
-		// 
-		
-		// Otherwise returns 0
-		return 0;
+		MazeState mState = (MazeState) state;
+		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CAT)
+			reward=-100;
+		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CHEESE)
+			reward=100;
+		return reward;
 	}	
 	
 	/**  In this case, the transition reward penalizes distance. */	
 	@Override
 	public double getTransitionReward(State fromState, Action action, State toState) {
-		
 		double reward = 0;
-		
-		//
-		// COMPLETAR
-		// 
-		
-		// Returns the reward
-		return reward;
+		reward = euclideanDistance(((MazeState)fromState).position, ((MazeState)toState).position);
+		if((MazeAction)action==MazeAction.DIVE)
+			reward=reward*2;
+		if(maze.cells[((MazeState)fromState).position.x][((MazeState)fromState).position.y]==Maze.WATER)
+			reward=reward/2;
+		return -reward;
 	}	
+	
+	public double euclideanDistance(Position start, Position finish) {
+		return Math.sqrt(Math.pow(start.x-finish.x, 2) + Math.pow(start.y-finish.y, 2));
+	}
 	
 	// From MFLearningProblem
 	
@@ -222,18 +223,14 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 	/** Updates the environment. */
 	@Override
 	public void updateEnvironment(State state, Action action) {
-		//
-		// COMPLETAR
-		// 
+		//Doesn't do anything, nothing to update
 	}
 	
 	/** Generates the new state. */
 	@Override
 	public State readNewState(State state, Action action) {
-		//
-		// COMPLETAR
-		// 
-		return null; // Quitar
+		StateActionTransModel model = mazeTransitionModel(state, action);
+		return model.genNextState();
 	}
 	
 	// Utilities
