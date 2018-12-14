@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
+import javax.security.auth.Policy;
+
 import learning.*;
 import problems.maze.MazeProblemMDP;
 import problems.maze.MazeState;
@@ -30,19 +32,31 @@ public class ValueIteration extends LearningAlgorithm {
 			System.out.println("The algorithm ValueIteration can not be applied to this problem (model is not visible).");
 			System.exit(0);
 		}
-		HashMap<State, Double> utilitiesPrime;
+		//Variables
+		HashMap<State, Double> utilitiesPrime = new HashMap<>();
 		MazeProblemMDP mProblem = (MazeProblemMDP)problem;
 		HashSet<State> S = new HashSet<>();
+		Action action;
+		double delta=0;
+		//Algorithm
 		S.addAll(mProblem.getAllStates());
 		for(State s : S) {
 			utilities.put(s, mProblem.getReward(s));
+			utilitiesPrime.put(s, mProblem.getReward(s));
 		}
-		double delta = 0;
-		for(State s : S) {
-			
-		}
-		
-		
+		do{
+			for(State s : S) {
+				delta=0;
+				for(Action a : mProblem.getPossibleActions(s)) {
+					double utilityAux= mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
+					if(utilityAux > utilitiesPrime.get(s))
+						utilitiesPrime.replace(s, utilityAux);
+				}
+				if(Math.abs(utilitiesPrime.get(s)-utilities.get(s))>delta)
+					delta = Math.abs(utilitiesPrime.get(s)-utilities.get(s));
+				utilities.replace(s, utilitiesPrime.get(s));
+			}
+		}while(delta>=maxDelta);
 	}
 	
 	
