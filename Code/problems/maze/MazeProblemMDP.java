@@ -88,8 +88,8 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 				possibleActions.add(MazeAction.DOWN);
 			}
 		}
-		if(pos.x-1>=0) {
-			if(maze.cells[pos.x+1][pos.y]!=Maze.WALL) {
+		if(pos.y-1>=0) {
+			if(maze.cells[pos.x][pos.y-1]!=Maze.WALL) {
 				possibleActions.add(MazeAction.UP);
 			}
 		}
@@ -104,9 +104,9 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 	public double getReward(State state){
 		double reward=0;
 		MazeState mState = (MazeState) state;
-		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CAT)
+		if(maze.cells[mState.position.x][mState.position.y]==Maze.CAT)
 			reward=-100;
-		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CHEESE)
+		if(maze.cells[mState.position.x][mState.position.y]==Maze.CHEESE)
 			reward=100;
 		return reward;
 	}	
@@ -117,9 +117,9 @@ public class MazeProblemMDP extends MDPLearningProblem  implements MazeProblem, 
 		double reward = 0;
 		reward = euclideanDistance(((MazeState)fromState).position, ((MazeState)toState).position);
 		if((MazeAction)action==MazeAction.DIVE)
-			reward=reward*2;
-		if(maze.cells[((MazeState)fromState).position.x][((MazeState)fromState).position.y]==Maze.WATER)
 			reward=reward/2;
+		if(maze.cells[((MazeState)fromState).position.x][((MazeState)fromState).position.y]==Maze.WATER)
+			reward=reward*2;
 		return -reward;
 	}	
 	
