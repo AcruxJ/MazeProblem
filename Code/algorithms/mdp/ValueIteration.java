@@ -1,10 +1,9 @@
 package algorithms.mdp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
-
-import javax.security.auth.Policy;
 
 import learning.*;
 import problems.maze.MazeProblemMDP;
@@ -34,9 +33,9 @@ public class ValueIteration extends LearningAlgorithm {
 		}
 		//Variables
 		HashMap<State, Double> utilitiesPrime = new HashMap<>();
+		utilities = new HashMap<>();
 		MazeProblemMDP mProblem = (MazeProblemMDP)problem;
 		HashSet<State> S = new HashSet<>();
-		Action action;
 		double delta=0;
 		//Algorithm
 		S.addAll(mProblem.getAllStates());
@@ -45,18 +44,32 @@ public class ValueIteration extends LearningAlgorithm {
 			utilitiesPrime.put(s, mProblem.getReward(s));
 		}
 		do{
-			for(State s : S) {
-				delta=0;
-				for(Action a : mProblem.getPossibleActions(s)) {
-					double utilityAux= mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
-					if(utilityAux > utilitiesPrime.get(s))
-						utilitiesPrime.replace(s, utilityAux);
+			for (State s : S) {
+				if (!mProblem.isFinal(s)) {
+					delta = 0;
+					for (Action a : mProblem.getPossibleActions(s)) {
+						double utilityAux = mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
+						if (utilityAux > utilities.get(s))
+							utilitiesPrime.replace(s, utilityAux);
+					}
+					if (Math.abs(utilitiesPrime.get(s) - utilities.get(s)) > delta)
+						delta = Math.abs(utilitiesPrime.get(s) - utilities.get(s));
+					utilities.replace(s, utilitiesPrime.get(s));
 				}
-				if(Math.abs(utilitiesPrime.get(s)-utilities.get(s))>delta)
-					delta = Math.abs(utilitiesPrime.get(s)-utilities.get(s));
-				utilities.replace(s, utilitiesPrime.get(s));
 			}
 		}while(delta>=maxDelta);
+		//Añadimos policy
+		for(State s : S) {
+			Action actionForPolicy = null;
+			double max=Double.NEGATIVE_INFINITY;
+			for (Action a : mProblem.getPossibleActions(s)) {
+				if (mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma) > max) {
+					max = mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
+					actionForPolicy = a;
+				}
+			}
+			this.solution.setAction(s, actionForPolicy);
+		}
 	}
 	
 	
