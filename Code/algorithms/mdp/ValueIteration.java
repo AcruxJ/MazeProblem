@@ -37,25 +37,31 @@ public class ValueIteration extends LearningAlgorithm {
 		MazeProblemMDP mProblem = (MazeProblemMDP)problem;
 		HashSet<State> S = new HashSet<>();
 		double delta=0;
-		//Algorithm
+		//Initializes utilities
 		S.addAll(mProblem.getAllStates());
 		for(State s : S) {
 			utilities.put(s, mProblem.getReward(s));
 			utilitiesPrime.put(s, mProblem.getReward(s));
 		}
+		//Algorithm
 		do{
 			for (State s : S) {
 				if (!mProblem.isFinal(s)) {
 					delta = 0;
+					//Updates with best action
 					for (Action a : mProblem.getPossibleActions(s)) {
 						double utilityAux = mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
-						if (utilityAux > utilities.get(s))
+						if (utilityAux > utilitiesPrime.get(s)) {
 							utilitiesPrime.replace(s, utilityAux);
+						}
 					}
+					//updates delta and the utilities
 					if (Math.abs(utilitiesPrime.get(s) - utilities.get(s)) > delta)
 						delta = Math.abs(utilitiesPrime.get(s) - utilities.get(s));
-					utilities.replace(s, utilitiesPrime.get(s));
+					utilities=(HashMap<State, Double>)utilitiesPrime.clone();
 				}
+				else
+					utilitiesPrime.replace(s, mProblem.getReward(s));
 			}
 		}while(delta>=maxDelta);
 		//Añadimos policy
