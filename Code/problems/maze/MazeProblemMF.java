@@ -86,9 +86,9 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 	public double getReward(State state){
 		double reward=0;
 		MazeState mState = (MazeState) state;
-		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CAT)
+		if(maze.cells[mState.position.x][mState.position.y]==Maze.CAT)
 			reward=-100;
-		if(maze.cells[mState.position.x][mState.position.y]!=Maze.CHEESE)
+		if(maze.cells[mState.position.x][mState.position.y]==Maze.CHEESE)
 			reward=100;
 		return reward;
 	}	
@@ -99,9 +99,9 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 		double reward = 0;
 		reward = euclideanDistance(((MazeState)fromState).position, ((MazeState)toState).position);
 		if((MazeAction)action==MazeAction.DIVE)
-			reward=reward*2;
-		if(maze.cells[((MazeState)fromState).position.x][((MazeState)fromState).position.y]==Maze.WATER)
 			reward=reward/2;
+		if(maze.cells[((MazeState)fromState).position.x][((MazeState)fromState).position.y]==Maze.WATER)
+			reward=reward*2;
 		return -reward;
 	}	
 	
