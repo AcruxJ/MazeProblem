@@ -1,6 +1,7 @@
 package algorithms.qlearning;
 
 import learning.*;
+import problems.maze.MazeProblemMF;
 import utils.Utils;
 /** 
  * This class must implement the QLearning algorithm to learn the optimal policy. 
@@ -45,13 +46,22 @@ public class QLearning extends LearningAlgorithm{
 			// currentState = problem.getInitialState(); 
 			
 			// Iterates until it finds a final state.
-			 
-			 //****************************/
-			 //
-			 // TO DO
-			 // 
-			 // 
-			 //***************************/				
+			 MazeProblemMF mProblem = (MazeProblemMF) problem;
+			 while(!problem.isFinal(currentState)){
+				 selAction = qTable.getActionMaxValue(currentState);
+				 if (selAction==null) {
+					 selAction = mProblem.randomAction(currentState);
+					 for(Action a : mProblem.getPossibleActions(currentState)) {
+						 qTable.setQValue(currentState, a, 0);
+					 }
+				 }
+				 newState = mProblem.readNewState(currentState, selAction);
+				 reward = mProblem.getTransitionReward(currentState, selAction, newState);
+				 maxQ=qTable.getMaxQValue(newState);
+				 Q = (1-alpha)*qTable.getQValue(currentState, selAction)+alpha*(reward+mProblem.gamma*maxQ);
+				 qTable.setQValue(currentState, selAction, Q);
+				 currentState=newState;
+			 }
 		}
 		solution = qTable.generatePolicy();
 	}
