@@ -1,6 +1,7 @@
 package algorithms.mdp;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -27,7 +28,6 @@ public class PolicyIteration extends LearningAlgorithm {
 		HashSet<State> S = new HashSet<>();
 		MazeProblemMDP mProblem = (MazeProblemMDP) problem;
 		Policy policy = new Policy();
-		Policy improvedPolicy = new Policy();
 		//Initialize policy
 		S.addAll(mProblem.getAllStates());
 		ArrayList<Action> actions = new ArrayList<>();
@@ -38,11 +38,10 @@ public class PolicyIteration extends LearningAlgorithm {
 		}
 		//Until we obtain the same policy repeat
 		do{
-			improvedPolicy = policy;
-			utilities = policyEvaluation(policy);
+			solution = policy;
+			utilities = policyEvaluation(solution);
 			policy = policyImprovement(utilities);
-		}while(!improvedPolicy.equals(policy));
-		this.solution = policy;
+		}while(!solution.equals(policy));
 	}
 		
 	
@@ -55,28 +54,31 @@ public class PolicyIteration extends LearningAlgorithm {
 		// the reward. In the remaining (most) states, utilities are zero.		
 		//Variables
 		HashMap<State,Double> utilities = new HashMap<State,Double>();
-		HashSet<State> S = new HashSet<>();
 		MazeProblemMDP mProblem = (MazeProblemMDP) problem;
+		Collection<State> S = mProblem.getAllStates();
 		double delta=0;
-		HashMap<State, Double> utilitiesPrime = new HashMap<>();
+		
 		//Initialization
-		S.addAll(mProblem.getAllStates());
 		for(State s : S) {
 			utilities.put(s, problem.getReward(s));
-			utilitiesPrime.put(s, problem.getReward(s));
 		}
 		//Algorithm
 		do{
+			HashMap<State, Double> utilitiesPrime = new HashMap<>();
 			delta = 0;
 			for (State s : S) {
 				if (!mProblem.isFinal(s)) {
 					// Updates with policy's action
-					utilitiesPrime.put(s, mProblem.getExpectedUtility(s, policy.getAction(s), utilities, mProblem.gamma));
-					//updates delta and the utilities
+					utilitiesPrime.put(s,
+							mProblem.getReward(s)+mProblem.gamma*mProblem.getExpectedUtility(s, policy.getAction(s), utilities, mProblem.gamma));
+					// updates delta and the utilities
 					if (Math.abs(utilitiesPrime.get(s) - utilities.get(s)) > delta)
 						delta = Math.abs(utilitiesPrime.get(s) - utilities.get(s));
+				} else {
+					utilitiesPrime.put(s, mProblem.getReward(s));
 				}
 			}
+		
 			utilities=utilitiesPrime;
 		}while(delta>=maxDelta);
 		return utilities;
@@ -88,25 +90,28 @@ public class PolicyIteration extends LearningAlgorithm {
 	private Policy policyImprovement(HashMap<State,Double> utilities){
 		// Creates the new policy
 		Policy newPolicy = new Policy();
-		//VARIABLES
-		HashSet<State> S = new HashSet<>();
-		MazeProblemMDP mProblem = (MazeProblemMDP) problem;
-		//Initialization
-		S.addAll(mProblem.getAllStates());
-		//Create the new policy
-		for(State s : S) {
-			Action actionForPolicy = null;
-			if (!mProblem.isFinal(s)) {
-				double max = Double.NEGATIVE_INFINITY;
-				for (Action a : mProblem.getPossibleActions(s)) {
-					if (mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma) > max) {
-						max = mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
-						actionForPolicy = a;
+		MDPLearningProblem MDPproblem = (MDPLearningProblem) this.problem;
+		Collection<State> allStates = MDPproblem.getAllStates();
+		
+		for(State s : allStates) {
+			if(!MDPproblem.isFinal(s)) {
+				//Find the best action for the state
+				
+				Action action = null;
+				double expectedUtility = Double.NEGATIVE_INFINITY;
+				
+				for(Action a : MDPproblem.getPossibleActions(s)) {
+					if(MDPproblem.getExpectedUtility(s, a, utilities, MDPproblem.gamma) > expectedUtility) {
+						expectedUtility = MDPproblem.getExpectedUtility(s, a, utilities, MDPproblem.gamma);
+						action = a;
 					}
 				}
-				newPolicy.setAction(s, actionForPolicy);
+				
+				newPolicy.setAction(s, action);
+				
 			}
 		}
+			
 		return newPolicy;
 	}
 	

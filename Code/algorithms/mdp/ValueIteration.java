@@ -50,7 +50,8 @@ public class ValueIteration extends LearningAlgorithm {
 				if (!mProblem.isFinal(s)) {
 					//Updates with best action
 					for (Action a : mProblem.getPossibleActions(s)) {
-						double utilityAux = mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
+						double utilityAux = mProblem.getReward(s)
+								+ mProblem.gamma * mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
 						if (utilityAux > utilitiesPrime.get(s)) {
 							utilitiesPrime.replace(s, utilityAux);
 						}

@@ -51,14 +51,16 @@ public class QLearning extends LearningAlgorithm{
 				 selAction = qTable.getActionMaxValue(currentState);
 				 if (selAction==null) {
 					 selAction = mProblem.randomAction(currentState);
-					 for(Action a : mProblem.getPossibleActions(currentState)) {
-						 qTable.setQValue(currentState, a, 0);
-					 }
 				 }
-				 newState = mProblem.readNewState(currentState, selAction);
-				 reward = mProblem.getTransitionReward(currentState, selAction, newState);
+				 newState = mProblem.applyAction(currentState, selAction);
+				 reward = mProblem.getReward(newState);
 				 maxQ=qTable.getMaxQValue(newState);
-				 Q = (1-alpha)*qTable.getQValue(currentState, selAction)+alpha*(reward+mProblem.gamma*maxQ);
+				 if (problem.isFinal(newState)) {
+					 Q = (1-alpha)*qTable.getQValue(currentState, selAction)+alpha*reward;
+					} else {
+						reward = reward+problem.getTransitionReward(currentState, selAction, newState);
+						Q = (1-alpha)*qTable.getQValue(currentState, selAction)+alpha*(reward+mProblem.gamma*maxQ);
+					}
 				 qTable.setQValue(currentState, selAction, Q);
 				 currentState=newState;
 			 }
