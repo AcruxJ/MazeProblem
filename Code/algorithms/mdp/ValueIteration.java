@@ -45,9 +45,9 @@ public class ValueIteration extends LearningAlgorithm {
 		}
 		//Algorithm
 		do{
+			delta = 0;
 			for (State s : S) {
 				if (!mProblem.isFinal(s)) {
-					delta = 0;
 					//Updates with best action
 					for (Action a : mProblem.getPossibleActions(s)) {
 						double utilityAux = mProblem.getExpectedUtility(s, a, utilities, mProblem.gamma);
@@ -58,11 +58,11 @@ public class ValueIteration extends LearningAlgorithm {
 					//updates delta and the utilities
 					if (Math.abs(utilitiesPrime.get(s) - utilities.get(s)) > delta)
 						delta = Math.abs(utilitiesPrime.get(s) - utilities.get(s));
-					utilities=(HashMap<State, Double>)utilitiesPrime.clone();
 				}
 				else
 					utilitiesPrime.replace(s, mProblem.getReward(s));
 			}
+			utilities=(HashMap<State, Double>)utilitiesPrime.clone();
 		}while(delta>=maxDelta);
 		//Añadimos policy
 		for(State s : S) {
