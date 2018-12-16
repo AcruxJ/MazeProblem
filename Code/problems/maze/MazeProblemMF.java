@@ -72,12 +72,12 @@ public class MazeProblemMF extends MFLearningProblem  implements MazeProblem, Pr
 	public ArrayList<Action> getPossibleActions(State state) {
 		MazeState mState = (MazeState) state;
 		ArrayList<Action> possibleActions = new ArrayList<Action>();
+		if(maze.cells[mState.position.x][mState.position.y]==Maze.HOLE)
+			possibleActions.add(MazeAction.DIVE);
 		possibleActions.add(MazeAction.UP);
 		possibleActions.add(MazeAction.DOWN);
 		possibleActions.add(MazeAction.LEFT);
 		possibleActions.add(MazeAction.RIGHT);
-		if(maze.cells[mState.position.x][mState.position.y]==Maze.HOLE)
-			possibleActions.add(MazeAction.DIVE);
 		return possibleActions;
 	}	
 	
